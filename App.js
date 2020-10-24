@@ -9,28 +9,25 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import BottomDrawer from 'rn-bottom-drawer';
+// import BottomDrawer from 'rn-bottom-drawer';
 // import * as Permissions from 'expo-permissions';
-import { ScrollView } from 'react-native-gesture-handler';
+// import { ScrollView } from 'react-native-gesture-handler';
 // import { Linking } from 'react-native';
 // import { Card, Icon } from 'react-native-elements';
-// const fetch = require('node-fetch');
+const fetch = require('node-fetch');
 
 // let model_output;
 
 class HomeScreen extends React.Component {
 
-    async findClosestRestrooms() {
+  async findClosestRestrooms(long, lat, radius) {
     // get closest restrooms
-    let str1 = '';
-    let res = '';
-    fetch(str1)
+    let endpoint = 'https://6jii3wt2n6.execute-api.us-east-1.amazonaws.com/test/helloworld-lambda?longitude='+long+'&latitude='+lat+'&radius='+radius;
+    fetch(endpoint)
       .then((response) => response.json())
       .then((data) => {
-        res = data;
-      })
-      .then(() => {})
-      .catch((err) => {
+        alert(JSON.stringify(data))
+      }).catch((err) => {
         console.log(err);
       });
   }
@@ -46,7 +43,7 @@ class HomeScreen extends React.Component {
             title="Find Closest Restrooms"
             style={styles.bottomButton}
             onPress={() => {
-              alert("hi")
+              this.findClosestRestrooms(2, 0, 1.23)
             }}
           />
         </View>
