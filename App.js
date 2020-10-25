@@ -101,7 +101,7 @@ class HomeScreen extends React.Component {
             </View>
           </ScrollView>
         </Modal>
-        
+
         <View style={styles.bottom}>
            <Button
              title="Find Closest Restrooms"
@@ -121,7 +121,9 @@ const styles = StyleSheet.create({
 
   wrapper: {
     paddingTop: 50,
-    flex: 1
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
 
   modal: {
@@ -152,7 +154,18 @@ const styles = StyleSheet.create({
   text: {
     color: "black",
     fontSize: 22
-  }
+  },
+
+  bottomButton: {
+    position: 'absolute',
+    bottom:0,
+  },
+
+  bottom: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    marginBottom: 36
+  },
 
 });
 
@@ -163,43 +176,3 @@ const styles = StyleSheet.create({
 // });
 
 export default HomeScreen;
-
-// const styles = StyleSheet.create({
-//   wrapper: {
-//     flex: 1,
-//     alignItems: 'center',
-//     justifyContent: 'center'
-//   },
-//   button: {
-//     width: 200,
-//     marginBottom: 10,
-//     paddingTop: 15,
-//     paddingBottom: 15,
-//     textAlign: 'center',
-//     color: '#fff',
-//     backgroundColor: '#38f'
-//   },
-//   container: {
-//     flex: 1,
-//     flexDirection: 'column',
-//     backgroundColor: 'transparent',
-//   },
-//   image: {
-//     flex: 1,
-//   },
-//   mapContainer: {
-//     flex: 12,
-//     alignItems: 'stretch',
-//   },
-//   bottom: {
-//     flex: 1,
-//     justifyContent: 'flex-end',
-//     marginBottom: 36
-//   },
-//   bottomButton: {
-//     position: 'absolute',
-//     bottom:0,
-//   },
-//   bottomDrawer: {
-//   }
-// });
