@@ -168,7 +168,7 @@ class HomeScreen extends React.Component {
         latitudeDelta: 1,
         longitudeDelta: 1,
       },
-      stops: [],
+      restrooms: [],
     };
   }
 
@@ -226,8 +226,9 @@ class HomeScreen extends React.Component {
     fetch(endpoint)
       .then((response) => response.json())
       .then((data) => {
-        this.setState({stops: JSON.stringify(data)})
-        // console.log(this.state.stops)
+        this.setState({restrooms: data})
+        // console.log(this.state.restrooms)
+        // peter's pin showing function here
       }).catch((err) => {
         console.log(err);
       });
