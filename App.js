@@ -168,6 +168,7 @@ class HomeScreen extends React.Component {
         latitudeDelta: 1,
         longitudeDelta: 1,
       },
+      stops: [],
     };
   }
 
@@ -225,7 +226,8 @@ class HomeScreen extends React.Component {
     fetch(endpoint)
       .then((response) => response.json())
       .then((data) => {
-        alert(JSON.stringify(data))
+        this.setState({stops: JSON.stringify(data)})
+        // console.log(this.state.stops)
       }).catch((err) => {
         console.log(err);
       });
@@ -261,7 +263,7 @@ class HomeScreen extends React.Component {
              title="Find Closest Restrooms"
              style={styles.bottomButton}
              onPress={() => {
-               this.findClosestRestrooms(2, 0, 1.23)
+               this.findClosestRestrooms(this.state.region['longitude'], this.state.region['latitude'], 1.23)
              }}
            />
         </View>
