@@ -61,25 +61,6 @@ class HomeScreen extends React.Component {
       });
   }
 
-  // render() {
-  //   return (
-  //     <View style={styles.container}>
-  //       <View style={styles.mapContainer}>
-  //         <Image style={styles.image} source={{uri: 'https://source.unsplash.com/random'}} />
-  //       </View>
-  //       <View style={styles.bottom}>
-  //         <Button
-  //           title="Find Closest Restrooms"
-  //           style={styles.bottomButton}
-  //           onPress={() => {
-  //             this.findClosestRestrooms(2, 0, 1.23)
-  //           }}
-  //         />
-  //       </View>
-  //     </View>
-  //   );
-  // }
-
   render() {
     // var BContent = (
     //   <View style={[styles.btn, styles.btnModal]}>
