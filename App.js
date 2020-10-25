@@ -8,6 +8,8 @@ import {
   Dimensions,
   TextInput
 } from 'react-native';
+import MapView from 'react-native-maps';
+import { Marker } from 'react-native-maps';
 import Modal from 'react-native-modalbox';
 import Slider from 'react-native-slider';
 const fetch = require('node-fetch');
@@ -159,8 +161,40 @@ class HomeScreen extends React.Component {
       isOpen: false,
       isDisabled: false,
       swipeToClose: true,
-      sliderValue: 0.3
+      sliderValue: 0.3,
+      region: {
+        latitude: 0,
+        longitude: 0,
+        latitudeDelta: 1,
+        longitudeDelta: 1,
+      },
     };
+  }
+
+  componentDidMount() {
+    console.log('component did mount');
+    const success = position => {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      console.log(latitude, longitude);
+      this.setState({
+        region: {
+          latitude: latitude,
+          longitude: longitude,
+          latitudeDelta: 0.0122,
+          longitudeDelta: 0.0121,
+        }
+      });
+    };
+    const error = () => {
+      console.log("Unable to retrieve your location");
+    };
+    navigator.geolocation.getCurrentPosition(success, error);
+  }
+
+  onRegionChange(region) {
+    console.log('region change');
+    //this.setState({ region });
   }
 
   onClose() {
@@ -208,7 +242,10 @@ class HomeScreen extends React.Component {
       <View style={styles.wrapper}>
         <View style={styles.mapContainer}>
           {/* <Image style={styles.image} source={{uri: 'https://source.unsplash.com/random'}} /> */}
-          <Button title="Position bottom + ScrollView" onPress={() => this.refs.modal6.open()} style={styles.btn}/>
+          {/* <Button title="Position bottom + ScrollView" onPress={() => this.refs.modal6.open()} style={styles.btn}/> */}
+          <MapView style={styles.mapStyle}  region={this.state.region}
+            onRegionChange={this.onRegionChange}
+          />
         </View>
         
         <Modal style={[styles.modal, styles.modal4]} position={"bottom"} ref={"modal6"} swipeArea={20}>
@@ -235,12 +272,27 @@ class HomeScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
-
   wrapper: {
     paddingTop: 50,
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center'
+  },
+
+  mapContainer: {
+    flex: 11,
+  },
+
+  bottom: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    marginBottom: 36
+  },
+
+  mapStyle: {
+    flex: 1,
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
   },
 
   modal: {
@@ -277,13 +329,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom:0,
   },
-
-  bottom: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    marginBottom: 36
-  },
-
 });
 
 
