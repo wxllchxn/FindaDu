@@ -15,8 +15,9 @@
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-39.0.3.tar.gz",
     "react-native-gesture-handler": "~1.7.0",
-    "react-native-web": "~0.13.12",
-    "rn-bottom-drawer": "^1.4.3"
+    "react-native-modalbox": "^2.0.2",
+    "react-native-slider": "^0.11.0",
+    "react-native-web": "~0.13.12"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0"
