@@ -6,14 +6,15 @@ import {
   ScrollView,
   View,
   Dimensions,
-  TextInput
+  Image,
+  TextInput,
 } from 'react-native';
 import MapView from 'react-native-maps';
 import { Marker } from 'react-native-maps';
-import Modal from 'react-native-modalbox';
 import Slider from 'react-native-slider';
+import RestroomModal from './modal.js';
+import Modal from 'react-native-modalbox';
 const fetch = require('node-fetch');
-// let model_output;
 
 var screen = Dimensions.get('window');
 
@@ -36,11 +37,11 @@ class HomeScreen extends React.Component {
   }
 
   componentDidMount() {
-    console.log('component did mount');
+    // console.log('component did mount');
     const success = position => {
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
-      console.log(latitude, longitude);
+      // console.log(latitude, longitude);
       this.setState({
         region: {
           latitude: latitude,
@@ -72,7 +73,6 @@ class HomeScreen extends React.Component {
   getMarkers(){
     var marker_list = [];
     for (var i = 0; i < this.state.restrooms.length; i++){
-      console.log("haha");
       let latlong = {
         'latitude': this.state.restrooms[i].latitude,
         'longitude': this.state.restrooms[i].longitude
@@ -83,13 +83,14 @@ class HomeScreen extends React.Component {
         coordinate={latlong}
         title={this.state.restrooms[i].name}
         description={""}
+        onPress={() => this.pressedMarker(ind-1)} 
       />);
     }
     return marker_list;
   }
                        
   onRegionChange(region) {
-    console.log('region change');
+    // console.log('region change ' + region);
     //this.setState({ region });
   }
 
@@ -105,63 +106,47 @@ class HomeScreen extends React.Component {
     console.log('the open/close of the swipeToClose just changed');
   }
 
-  renderList() {
-    var list = [];
-
-    for (var i=0;i<50;i++) {
-      list.push(<Text style={styles.text} key={i}>Elem {i}</Text>);
-    }
-
-    return list;
-  }
-
   async findClosestRestrooms(long, lat, radius) {
     // get closest restrooms
-    let endpoint = 'https://6jii3wt2n6.execute-api.us-east-1.amazonaws.com/test/helloworld-lambda?longitude='+long+'&latitude='+lat+'&radius='+radius;
+    let endpoint = 'https://6jii3wt2n6.execute-api.us-east-1.amazonaws.com/test/helloworld-lambda?latitude='+lat+'&longitude='+long+'&radius='+radius;
     fetch(endpoint)
       .then((response) => response.json())
       .then((data) => {
         this.setState({restrooms: data})
-         console.log(this.state.restrooms)
-         // peter's pin showing function here EDIT: setState should cause it to rerender anyway
+        // console.log(this.state.restrooms)
+        // TODO peter's pin showing function here
       }).catch((err) => {
         console.log(err);
       });
   }
+  
+  pressedMarker(index) {
+    // console.log(this.state.restrooms[index])
+    this.refs.modal.updateText(this.state.restrooms[index].name, this.state.restrooms[index].image)
+    this.refs.modal.open()
+  }
 
   render() {
-    // var BContent = (
-    //   <View style={[styles.btn, styles.btnModal]}>
-    //     <Button title="X" color="white" onPress={() => this.setState({isOpen: false})}/>
-    //   </View>
-    // );
-
     return (
       <View style={styles.wrapper}>
         <View style={styles.mapContainer}>
-          {/* <Image style={styles.image} source={{uri: 'https://source.unsplash.com/random'}} /> */}
-          {/* <Button title="Position bottom + ScrollView" onPress={() => this.refs.modal6.open()} style={styles.btn}/> */}
+          {/* <Button title="starbucks bathroom" onPress={() => this.pressedMarker(0)} style={styles.btn}/>
+          <Button title="cvs bathroom" onPress={() => this.pressedMarker(1)} style={styles.btn}/> */}
           <MapView style={styles.mapStyle}  region={this.state.region}
             onRegionChange={this.onRegionChange}>
             {this.getMarkers()}
             {this.getUserMarker()}
           </MapView>
         </View>
-        
-        <Modal style={[styles.modal, styles.modal4]} position={"bottom"} ref={"modal6"} swipeArea={20}>
-          <ScrollView>
-            <View style={{width: screen.width, paddingLeft: 10}}>
-              {this.renderList()}
-            </View>
-          </ScrollView>
-        </Modal>
+
+        <RestroomModal ref={"modal"}/>
 
         <View style={styles.bottom}>
            <Button
              title="Find Closest Restrooms"
              style={styles.bottomButton}
              onPress={() => {
-               this.findClosestRestrooms(this.state.region['longitude'], this.state.region['latitude'], 1.23)
+              this.findClosestRestrooms(this.state.region['longitude'], this.state.region['latitude'], 1.23)
              }}
            />
         </View>
@@ -197,11 +182,8 @@ const styles = StyleSheet.create({
 
   modal: {
     justifyContent: 'center',
-    alignItems: 'center'
-  },
-
-  modal4: {
-    height: 300
+    alignItems: 'center',
+    height: 300,
   },
 
   btn: {
