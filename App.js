@@ -13,42 +13,6 @@ import { Marker } from 'react-native-maps';
 import Modal from 'react-native-modalbox';
 import Slider from 'react-native-slider';
 const fetch = require('node-fetch');
-/*
-//imma just put the code in here
-//add in this function
-getMarkers(){
-    var restList = this.state.restrooms;
-    var restListLength = restList.length;
-    var finalArray = new Array();
-    for (var i = 0; i < restListLength; i++){
-         console.log(restList[i]);
-         var temp = {
-             latlng: {
-                latitude: restList[i].latitude,
-                longitude: restList[i].longitude,
-             },
-             title: restList[i].name,
-             description: "",
-         };
-         finalArray.push(temp);
-    }
-    
-    return finalArray.map((marker, index) => (
-    <Marker
-      key={index}
-      coordinate={marker.latlng}
-      title={marker.title}
-      description={marker.description}
-    />
-  ));
-}
-
-//replace the mapView code in render with this
-<MapView style={styles.mapStyle}  region={this.state.region}
-            onRegionChange={this.onRegionChange}>
-            {this.getMarkers}
-          </MapView>
-*/
 // let model_output;
 
 var screen = Dimensions.get('window');
@@ -92,6 +56,38 @@ class HomeScreen extends React.Component {
     navigator.geolocation.getCurrentPosition(success, error);
   }
 
+  getUserMarker(){
+    var tempLatLng = {
+        'latitude': this.state.region.latitude,
+        'longitude': this.state.region.longitude,
+    };
+    //const img = require('../assets/userPin.png');
+    return <Marker
+      key={0}
+      coordinate={tempLatLng}
+      pinColor={'gold'}
+    />;
+  }
+      
+  getMarkers(){
+    var marker_list = [];
+    for (var i = 0; i < this.state.restrooms.length; i++){
+      console.log("haha");
+      let latlong = {
+        'latitude': this.state.restrooms[i].latitude,
+        'longitude': this.state.restrooms[i].longitude
+      };
+      let ind = i + 1;
+      marker_list.push(<Marker
+        key={ind}
+        coordinate={latlong}
+        title={this.state.restrooms[i].name}
+        description={""}
+      />);
+    }
+    return marker_list;
+  }
+                       
   onRegionChange(region) {
     console.log('region change');
     //this.setState({ region });
@@ -126,8 +122,8 @@ class HomeScreen extends React.Component {
       .then((response) => response.json())
       .then((data) => {
         this.setState({restrooms: data})
-        // console.log(this.state.restrooms)
-        // peter's pin showing function here
+         console.log(this.state.restrooms)
+         // peter's pin showing function here EDIT: setState should cause it to rerender anyway
       }).catch((err) => {
         console.log(err);
       });
@@ -146,8 +142,10 @@ class HomeScreen extends React.Component {
           {/* <Image style={styles.image} source={{uri: 'https://source.unsplash.com/random'}} /> */}
           {/* <Button title="Position bottom + ScrollView" onPress={() => this.refs.modal6.open()} style={styles.btn}/> */}
           <MapView style={styles.mapStyle}  region={this.state.region}
-            onRegionChange={this.onRegionChange}
-          />
+            onRegionChange={this.onRegionChange}>
+            {this.getMarkers()}
+            {this.getUserMarker()}
+          </MapView>
         </View>
         
         <Modal style={[styles.modal, styles.modal4]} position={"bottom"} ref={"modal6"} swipeArea={20}>
