@@ -14,141 +14,40 @@ import Modal from 'react-native-modalbox';
 import Slider from 'react-native-slider';
 const fetch = require('node-fetch');
 /*
-import React, { Component } from 'react';
-import MapView from 'react-native-maps';
-import { Marker } from 'react-native-maps';
-import {
-  Dimensions,
-  Button,
-  ImageStore,
-  ImageEditor,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import * as Permissions from 'expo-permissions';
-import { ScrollView } from 'react-native-gesture-handler';
-import { Linking } from 'react-native';
-import { Card, Icon } from 'react-native-elements';
-import BottomDrawer from './BottomDrawer';
-// const fetch = require('node-fetch');
-
-let model_output;
-
-class HomeScreen extends React.Component {
-  constructor(props){
-      super(props);
-      this.state = {
-        region: {
-          latitude: 0,
-          longitude: 0,
-          latitudeDelta: 1,
-          longitudeDelta: 1,
-        },
-        text: 'jjhj',
-        imgUrl: 'assets/icon.png',
-      }
-  }
-  componentDidMount() {
-    console.log('nnn');
-    const success = position => {
-      const latitude = position.coords.latitude;
-      const longitude = position.coords.longitude;
-      console.log(latitude, longitude);
-      this.setState({
-        region: {
-          latitude: latitude,
-          longitude: longitude,
-          latitudeDelta: 0.0122,
-          longitudeDelta: 0.0121,
-        }
-      });
-    };
-    const error = () => {
-      console.log("Unable to retrieve your location");
-    };
-    navigator.geolocation.getCurrentPosition(success, error);
-  }
-  getInitialState() {
-    return {
-      region: {
-        latitude: 0,
-        longitude: 0,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      },
-    };
-  }
-  onRegionChange(region) {
-    console.log('ssss');
-    //this.setState({ region });
-  }
-  async findClosestRestrooms() {
-    // get closest restrooms
-    let str1 = '';
-    let res = '';
-    fetch(str1)
-      .then((response) => response.json())
-      .then((data) => {
-        res = data;
-      })
-      .then(() => {})
-      .catch((err) => {
-        console.log(err);
-      });
-  }
-  
-  render() {
-    return (
-      <View style={styles.container}>
-       <MapView style={styles.mapStyle}  region={this.state.region}
-      onRegionChange={this.onRegionChange}
+//imma just put the code in here
+//add in this function
+getMarkers(){
+    var restList = this.state.restrooms;
+    var restListLength = restList.length;
+    var finalArray = new Array();
+    for (var i = 0; i < restListLength; i++){
+         console.log(restList[i]);
+         var temp = {
+             latlng: {
+                latitude: restList[i].latitude,
+                longitude: restList[i].longitude,
+             },
+             title: restList[i].name,
+             description: "",
+         };
+         finalArray.push(temp);
+    }
+    
+    return finalArray.map((marker, index) => (
+    <Marker
+      key={index}
+      coordinate={marker.latlng}
+      title={marker.title}
+      description={marker.description}
     />
-    <View style={styles.bottomBox}>
-        
-          <Text>Using geolocation JavaScript API in React</Text>
-          <Image
-            source={{ uri: this.state.imgUrl }}
-            style={{ width: 300, height: 250 }}
-          />
-          <Button
-            title="Find Closest Restrooms"
-            style={{ flex: 1 }}
-            onPress={() => {
-              // do stuff here
-            }}
-          />
-        </View>
-    </View>
-    );
-  }
+  ));
 }
 
-// const RootStack = createStackNavigator({
-//   Home: HomeScreen,
-//   Details: DetailsScreen,
-// });
-
-export default HomeScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  mapStyle: {
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
-  },
-  bottomBox: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
-
+//replace the mapView code in render with this
+<MapView style={styles.mapStyle}  region={this.state.region}
+            onRegionChange={this.onRegionChange}>
+            {this.getMarkers}
+          </MapView>
 */
 // let model_output;
 
