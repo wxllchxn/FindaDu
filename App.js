@@ -113,7 +113,7 @@ class HomeScreen extends React.Component {
       .then((response) => response.json())
       .then((data) => {
         this.setState({restrooms: data})
-        // console.log(this.state.restrooms)
+        console.log(this.state.restrooms)
         // TODO peter's pin showing function here
       }).catch((err) => {
         console.log(err);
