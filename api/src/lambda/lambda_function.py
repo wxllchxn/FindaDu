@@ -15,16 +15,25 @@ s3_bucket_name = "findadu-images"
 #     distance = math.sqrt(((latitude-bathroomLat)**2)+((longitude-bathroomLong)**2))
 #     return distance
 
-def getImageLinkfor(latitude: float, longitude:float):
+def _key_existing_size__list(response, bucket, key):
+    """return the key's size if it exist, else None"""
+    for obj in response.get('Contents', []):
+        if obj['Key'] == key:
+            return obj['Size']
+
+def getImageLinkfor(client, response, latitude: float, longitude:float):
     
     # Check if the S3 alreday has the image.
     # Image names are <lat><long>.jpg
-
-    url = str("https://findadu-images.s3.amazonaws.com/") + str(latitude) + str(longitude) + ".jpg"
-    response = requests.get(url)
-    if response.status_code == 200:
+    
+    # response = requests.get(url)
+    imageNameKey = str(latitude) + str(longitude) + ".jpg"
+    if _key_existing_size__list(response, s3_bucket_name, imageNameKey):
+        url = str("https://findadu-images.s3.amazonaws.com/") + imageNameKey
+        print("yes")
         return url
     else:
+        print("nooo")
         # If image doesn't exist, download the image from the google api given coordinates.
         url = "https://maps.googleapis.com/maps/api/streetview?size=400x400&location={0},{1}&fov=80&heading=70&pitch=0&key=AIzaSyDlVPOT9oIOdIkVyoxZ2K8ofNDHmh19npE".format(latitude, longitude)
         response = requests.get(url)
@@ -35,7 +44,6 @@ def getImageLinkfor(latitude: float, longitude:float):
             file.write(response.content)
         response.close()
         # Upload image to S3.
-        client = boto3.client('s3')
         client.upload_file(filePath, s3_bucket_name, fileName, ExtraArgs={'ACL': 'public-read'})
         url = str("https://findadu-images.s3.amazonaws.com/") + str(latitude) + str(longitude) + ".jpg"
         return url
@@ -49,13 +57,20 @@ def findNearestBathroomsFrom(latitude: float, longitude: float, radius: float):
     # if latitude != 42.271861:
     #     bathroomObjects.append({"nope": 3})
         # return bathroomObjects
+    
+    # Getting list of image objects from s3.
+    client = boto3.client('s3')
+    response = client.list_objects_v2(
+        Bucket=s3_bucket_name,
+    )
+    
     for bathroomDatum in bathroomData:
         if float(bathroomDatum["distance"]) <= radius:
             bathroomName = str(bathroomDatum["name"])
             bathroomLat = float(bathroomDatum["latitude"])
             bathroomLong = float(bathroomDatum["longitude"])
             
-            bathroomImageLink = getImageLinkfor(latitude=bathroomLat, longitude=bathroomLong)
+            bathroomImageLink = getImageLinkfor(client, response, latitude=bathroomLat, longitude=bathroomLong)
             bathroomObject = {
                 "name": bathroomName,
                 "image": bathroomImageLink,
