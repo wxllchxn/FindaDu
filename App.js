@@ -8,6 +8,8 @@ import {
   Dimensions,
   Image,
   TextInput,
+  TouchableOpacity,
+  SafeAreaView,
 } from 'react-native';
 import MapView from 'react-native-maps';
 import { Marker } from 'react-native-maps';
@@ -128,28 +130,24 @@ class HomeScreen extends React.Component {
 
   render() {
     return (
-      <View style={styles.wrapper}>
-        <View style={styles.mapContainer}>
-          {/* <Button title="starbucks bathroom" onPress={() => this.pressedMarker(0)} style={styles.btn}/>
-          <Button title="cvs bathroom" onPress={() => this.pressedMarker(1)} style={styles.btn}/> */}
-          <MapView style={styles.mapStyle}  region={this.state.region}
-            onRegionChange={this.onRegionChange}>
-            {this.getMarkers()}
-            {this.getUserMarker()}
-          </MapView>
-        </View>
+      <View style={styles.mapContainer}>
+        {/* <Button title="starbucks bathroom" onPress={() => this.pressedMarker(0)} style={styles.btn}/>
+        <Button title="cvs bathroom" onPress={() => this.pressedMarker(1)} style={styles.btn}/> */}
+        <MapView style={styles.mapStyle}  region={this.state.region}
+          onRegionChange={this.onRegionChange}>
+          {this.getMarkers()}
+          {this.getUserMarker()}
+        </MapView>
 
         <RestroomModal ref={"modal"}/>
 
-        <View style={styles.bottom}>
-           <Button
-             title="Find Closest Restrooms"
-             style={styles.bottomButton}
-             onPress={() => {
-              this.findClosestRestrooms(this.state.region['longitude'], this.state.region['latitude'], 1.23)
-             }}
-           />
-        </View>
+        <TouchableOpacity
+          style={styles.appButtonContainer}
+          onPress={() => {
+            this.findClosestRestrooms(this.state.region['longitude'], this.state.region['latitude'], 1.23)
+          }}>
+          <Text style={styles.appButtonText}>Find Closest Restrooms</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -161,17 +159,12 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    backgroundColor: 'black',
   },
 
   mapContainer: {
-    flex: 11,
-  },
-
-  bottom: {
     flex: 1,
-    justifyContent: 'flex-end',
-    marginBottom: 36
   },
 
   mapStyle: {
@@ -193,24 +186,31 @@ const styles = StyleSheet.create({
     padding: 10
   },
 
-  btnModal: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    width: 50,
-    height: 50,
-    backgroundColor: "transparent"
-  },
-
   text: {
     color: "black",
     fontSize: 22
   },
 
-  bottomButton: {
+  appButtonContainer: {
+    elevation: 8,
+    backgroundColor: "#009688",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     position: 'absolute',
-    bottom:0,
+    bottom: 30,
+    left: 0, 
+    right: 0,
+    marginLeft:70,
+    marginRight:70,
   },
+  appButtonText: {
+    fontSize: 18,
+    color: "#fff",
+    fontWeight: "bold",
+    alignSelf: "center",
+    textTransform: "uppercase"
+  }
 });
 
 
