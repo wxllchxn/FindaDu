@@ -37,7 +37,7 @@ export default class RestroomModal extends Component {
     return (
       <Modal style={[styles.modal]} position={"bottom"} ref={"modal"} swipeArea={20}>
         <ScrollView style={{width: screen.width, paddingLeft: 10}}>
-          <Text style={styles.text}>{this.state.name}</Text>
+          <Text adjustsFontSizeToFit numberOfLines={1} style={styles.title}>{this.state.name}</Text>
           <Image style={styles.image} source={{uri: this.state.image}} />
         </ScrollView>
       </Modal>
@@ -49,11 +49,18 @@ const styles = StyleSheet.create({
   modal: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: 300,
+    height: 400,
+  },
+  title: {
+    color: "black",
+    fontSize: 25,
+    marginTop: 10,
+    marginRight: 10,
+    marginBottom: 10,
   },
   text: {
     color: "black",
-    fontSize: 22
+    fontSize: 22,
   },
   image: {
     height: 128,

@@ -115,7 +115,7 @@ class HomeScreen extends React.Component {
       .then((response) => response.json())
       .then((data) => {
         this.setState({restrooms: data})
-        console.log(this.state.restrooms)
+        // console.log(this.state.restrooms)
         // TODO peter's pin showing function here
       }).catch((err) => {
         console.log(err);
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
 
   appButtonContainer: {
     elevation: 8,
-    backgroundColor: "#009688",
+    backgroundColor: "#147EFB",
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
@@ -201,15 +201,13 @@ const styles = StyleSheet.create({
     bottom: 30,
     left: 0, 
     right: 0,
-    marginLeft:70,
-    marginRight:70,
+    marginLeft:30,
+    marginRight:30,
   },
   appButtonText: {
     fontSize: 18,
     color: "#fff",
-    fontWeight: "bold",
     alignSelf: "center",
-    textTransform: "uppercase"
   }
 });
 
