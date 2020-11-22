@@ -12,6 +12,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import MapView from 'react-native-maps';
+import Polyline from '@mapbox/polyline';
 import { Marker } from 'react-native-maps';
 import Slider from 'react-native-slider';
 import RestroomModal from './modal.js';
@@ -35,6 +36,11 @@ class HomeScreen extends React.Component {
         longitudeDelta: 1,
       },
       restrooms: [],
+      coords: [],
+      x: 'false',
+      concat: "",
+      cordLatitude:42.279594,
+      cordLongitude:-83.732124,
     };
   }
 
@@ -108,6 +114,44 @@ class HomeScreen extends React.Component {
     console.log('the open/close of the swipeToClose just changed');
   }
 
+  mergeLot(restLat,restLon){
+    let dest = restLat +","+restLon;
+      
+    if (this.state.region.latitude != null && this.state.region.longitude!=null)
+     {
+       let concatLot = this.state.region.latitude +","+this.state.region.longitude
+       this.setState({
+         concat: concatLot
+       }, () => {
+         this.getDirections(concatLot, dest);
+       });
+     }
+   }
+
+  async getDirections(startLoc, destinationLoc) {
+      console.log(startLoc);
+      console.log(destinationLoc);
+      try {
+          let resp = await fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${ startLoc }&destination=${ destinationLoc }&key=AIzaSyDchT5k7ZvFKsL0-RgQYccKIOHya8XFyKY`)
+          let respJson = await resp.json();
+          let points = Polyline.decode(respJson.routes[0].overview_polyline.points);
+          let coords = points.map((point, index) => {
+              return  {
+                  latitude : point[0],
+                  longitude : point[1]
+              }
+          })
+          this.setState({coords: coords})
+          this.setState({x: "true"})
+          console.log(coords)
+          return coords
+      } catch(error) {
+          console.log(error)
+          this.setState({x: "error"})
+          return error
+      }
+  }
+
   async findClosestRestrooms(long, lat, radius) {
     // get closest restrooms
     let endpoint = 'https://6jii3wt2n6.execute-api.us-east-1.amazonaws.com/test/helloworld-lambda?latitude='+lat+'&longitude='+long+'&radius='+radius;
@@ -124,6 +168,7 @@ class HomeScreen extends React.Component {
   
   pressedMarker(index) {
     // console.log(this.state.restrooms[index])
+    this.mergeLot(this.state.restrooms[index].latitude,this.state.restrooms[index].longitude);
     this.refs.modal.updateText(this.state.restrooms[index].name, this.state.restrooms[index].image)
     this.refs.modal.open()
   }
@@ -137,6 +182,20 @@ class HomeScreen extends React.Component {
           onRegionChange={this.onRegionChange}>
           {this.getMarkers()}
           {this.getUserMarker()}
+          
+       {this.state.x == 'true' && <MapView.Polyline
+            coordinates={this.state.coords}
+            strokeWidth={2}
+            strokeColor="red"/>
+        }
+        {this.state.x == 'error' && <MapView.Polyline
+          coordinates={[
+              {latitude: this.state.region.latitude, longitude: this.state.region.longitude},
+              {latitude: this.state.cordLatitude, longitude: this.state.cordLongitude},
+          ]}
+          strokeWidth={2}
+          strokeColor="red"/>
+         }
         </MapView>
 
         <RestroomModal ref={"modal"}/>
