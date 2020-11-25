@@ -14,7 +14,6 @@ import {
 import MapView from 'react-native-maps';
 import Polyline from '@mapbox/polyline';
 import { Marker } from 'react-native-maps';
-import RestroomModal from './modal.js';
 import Modal from 'react-native-modalbox';
 const fetch = require('node-fetch');
 
@@ -44,6 +43,9 @@ class HomeScreen extends React.Component {
       index: 0,
       modalName: '',
       modalName: '',
+      modalAmenities: '',
+      modalReviews: [],
+      modalRating: '',
     };
   }
 
@@ -161,6 +163,7 @@ class HomeScreen extends React.Component {
     fetch(endpoint)
       .then((response) => response.json())
       .then((data) => {
+        // console.log(data)
         this.setState({
           restrooms: data,
           bottomText: 'Find Closest Restrooms',
@@ -170,12 +173,46 @@ class HomeScreen extends React.Component {
       });
   }
   
+  amenities(amenity_dict) {
+    res = ""
+    
+    if(amenity_dict["paper"])
+      res += '🧻'
+
+    if(amenity_dict["sanitizer"])
+      res += '🧴'
+    
+    if(amenity_dict["soap"])
+      res += '🧼'
+
+    return res
+  }
+
+  review() {
+    reviews = [];
+    for(let i = 0; i < this.state.modalReviews.length; i++){
+      review = this.state.modalReviews[i]
+      reviews.push(
+        <View key={i} style={{flexDirection:"column"}}>
+          <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>{review.name}</Text>
+          <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>{review.timestamp}</Text>
+          <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>{review.rating}</Text>
+          <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>{review.review}</Text>
+        </View>
+      )
+    }
+
+    return reviews
+  }
+
   pressedMarker(index) {
-    // console.log(this.state.restrooms[index])
     this.setState({
       index: index,
       modalName: this.state.restrooms[index].name, 
       modalImage: this.state.restrooms[index].image,
+      modalAmenities: this.amenities(this.state.restrooms[index].amenities),
+      modalReviews: this.state.restrooms[index].reviews,
+      modalRating: this.state.restrooms[index].avg_rating+'/5',
     });
     this.refs.modal.open()
   }
@@ -241,10 +278,12 @@ class HomeScreen extends React.Component {
             <View style={{flexDirection:"row"}}>
               <Image style={styles.image} source={{uri: this.state.modalImage}} />
               <View style={styles.right}>
-                <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>Rating: </Text>
-                <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>Amenities: </Text>
-                <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>Reviews</Text>
+                <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>Rating: {this.state.modalRating}</Text>
+                <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>Amenities: {this.state.modalAmenities}</Text>
               </View>
+            </View>
+            <View style={{flexDirection:"column"}}>
+              {this.review()}
             </View>
             <TouchableOpacity
               style={styles.appButtonContainer}
@@ -320,7 +359,7 @@ const styles = StyleSheet.create({
   modal: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: 270,
+    height: 400,
     borderRadius: 10,
   },
 
@@ -364,6 +403,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginLeft:10,
     marginRight:10,
+    marginBottom:20,
   },
 
   appButtonText: {
