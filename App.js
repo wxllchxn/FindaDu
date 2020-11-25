@@ -27,6 +27,8 @@ class HomeScreen extends React.Component {
       isDisabled: false,
       swipeToClose: true,
       sliderValue: 0.3,
+      origLat: 0,
+      origLon: 0,
       region: {
         latitude: 0,
         longitude: 0,
@@ -56,6 +58,8 @@ class HomeScreen extends React.Component {
       const longitude = position.coords.longitude;
       // console.log(latitude, longitude);
       this.setState({
+        origLat: latitude,
+        origLon: longitude,
         region: {
           latitude: latitude,
           longitude: longitude,
@@ -119,7 +123,30 @@ class HomeScreen extends React.Component {
     console.log('the open/close of the swipeToClose just changed');
   }
 
+
+  async changeCurrPosition(newLocation) {
+      //1600 Amphitheatre Parkway, Mountain View, CA
+    let endpoint = `https://maps.googleapis.com/maps/api/geocode/json?address=${ newLocation }&key=AIzaSyDchT5k7ZvFKsL0-RgQYccKIOHya8XFyKY`;
+    fetch(endpoint)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data)
+        this.setState({
+            region: {
+              latitude: data.results[0].geometry.location.lat,
+              longitude: data.results[0].geometry.location.lng,
+              latitudeDelta: 0.0122,
+              longitudeDelta: 0.0121,
+            }
+          })
+      }).catch((err) => {
+        console.log(err);
+      });
+  }
+
   mergeLot(restLat,restLon){
+    this.changeCurrPosition("1600 Amphitheatre Parkway, Mountain View, CA");//TESTING
+      
     let dest = restLat +","+restLon;
       
     if (this.state.region.latitude != null && this.state.region.longitude!=null)
