@@ -14,7 +14,6 @@ import {
 import MapView from 'react-native-maps';
 import Polyline from '@mapbox/polyline';
 import { Marker } from 'react-native-maps';
-import Slider from 'react-native-slider';
 import RestroomModal from './modal.js';
 import Modal from 'react-native-modalbox';
 const fetch = require('node-fetch');
@@ -39,8 +38,12 @@ class HomeScreen extends React.Component {
       coords: [],
       x: 'false',
       concat: "",
-      cordLatitude:42.279594,
-      cordLongitude:-83.732124,
+      cordLatitude: 42.279594,
+      cordLongitude: 83.732124,
+      bottomText: 'Find Closest Restrooms',
+      index: 0,
+      modalName: '',
+      modalName: '',
     };
   }
 
@@ -119,18 +122,18 @@ class HomeScreen extends React.Component {
       
     if (this.state.region.latitude != null && this.state.region.longitude!=null)
      {
-       let concatLot = this.state.region.latitude +","+this.state.region.longitude
-       this.setState({
-         concat: concatLot
-       }, () => {
-         this.getDirections(concatLot, dest);
-       });
+        let concatLot = this.state.region.latitude +","+this.state.region.longitude
+        this.setState({
+          concat: concatLot
+        }, () => {
+          this.getDirections(concatLot, dest);
+        });
      }
    }
 
   async getDirections(startLoc, destinationLoc) {
-      console.log(startLoc);
-      console.log(destinationLoc);
+      // console.log(startLoc);
+      // console.log(destinationLoc);
       try {
           let resp = await fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${ startLoc }&destination=${ destinationLoc }&key=AIzaSyDchT5k7ZvFKsL0-RgQYccKIOHya8XFyKY`)
           let respJson = await resp.json();
@@ -143,10 +146,10 @@ class HomeScreen extends React.Component {
           })
           this.setState({coords: coords})
           this.setState({x: "true"})
-          console.log(coords)
+          // console.log(coords)
           return coords
       } catch(error) {
-          console.log(error)
+          // console.log(error)
           this.setState({x: "error"})
           return error
       }
@@ -158,9 +161,10 @@ class HomeScreen extends React.Component {
     fetch(endpoint)
       .then((response) => response.json())
       .then((data) => {
-        this.setState({restrooms: data})
-        // console.log(this.state.restrooms)
-        // TODO peter's pin showing function here
+        this.setState({
+          restrooms: data,
+          bottomText: 'Find Closest Restrooms',
+        })
       }).catch((err) => {
         console.log(err);
       });
@@ -168,16 +172,49 @@ class HomeScreen extends React.Component {
   
   pressedMarker(index) {
     // console.log(this.state.restrooms[index])
-    this.mergeLot(this.state.restrooms[index].latitude,this.state.restrooms[index].longitude);
-    this.refs.modal.updateText(this.state.restrooms[index].name, this.state.restrooms[index].image)
+    this.setState({
+      index: index,
+      modalName: this.state.restrooms[index].name, 
+      modalImage: this.state.restrooms[index].image,
+    });
     this.refs.modal.open()
+  }
+
+  bottomButtonStyle = function(options) {
+    if(this.state.bottomText == "Find Closest Restrooms"){
+      return {
+        elevation: 8,
+        backgroundColor: "#147EFB",
+        borderRadius: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        position: 'absolute',
+        bottom: 30,
+        left: 0, 
+        right: 0,
+        marginLeft:30,
+        marginRight:30,
+      }
+    } else {
+      return {
+        elevation: 8,
+        backgroundColor: "#999999",
+        borderRadius: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        position: 'absolute',
+        bottom: 30,
+        left: 0, 
+        right: 0,
+        marginLeft:30,
+        marginRight:30,
+      }
+    }
   }
 
   render() {
     return (
       <View style={styles.mapContainer}>
-        {/* <Button title="starbucks bathroom" onPress={() => this.pressedMarker(0)} style={styles.btn}/>
-        <Button title="cvs bathroom" onPress={() => this.pressedMarker(1)} style={styles.btn}/> */}
         <MapView style={styles.mapStyle}  region={this.state.region}
           onRegionChange={this.onRegionChange}>
           {this.getMarkers()}
@@ -198,14 +235,38 @@ class HomeScreen extends React.Component {
          }
         </MapView>
 
-        <RestroomModal ref={"modal"}/>
+        <Modal style={styles.modal} position={"bottom"} ref={"modal"} swipeArea={20}>
+          <ScrollView style={styles.scroll}>
+            <Text adjustsFontSizeToFit numberOfLines={1} style={styles.title}>{this.state.modalName}</Text>
+            <View style={{flexDirection:"row"}}>
+              <Image style={styles.image} source={{uri: this.state.modalImage}} />
+              <View style={styles.right}>
+                <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>Rating: </Text>
+                <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>Amenities: </Text>
+                <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>Reviews</Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={styles.appButtonContainer}
+              onPress={() => {
+                this.refs.modal.close();
+                this.mergeLot(this.state.restrooms[this.state.index].latitude,this.state.restrooms[this.state.index].longitude);
+              }}>
+              <Text style={styles.appButtonText}>Navigate to this restroom</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </Modal>
 
         <TouchableOpacity
-          style={styles.appButtonContainer}
+          style={this.bottomButtonStyle()}
           onPress={() => {
-            this.findClosestRestrooms(this.state.region['longitude'], this.state.region['latitude'], 1.23)
+            this.setState({
+              bottomText: 'Loading...'
+            }, () => {
+              this.findClosestRestrooms(this.state.region['longitude'], this.state.region['latitude'], 1.23)
+            });
           }}>
-          <Text style={styles.appButtonText}>Find Closest Restrooms</Text>
+          <Text style={styles.appButtonText}>{this.state.bottomText}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -250,19 +311,61 @@ const styles = StyleSheet.create({
     fontSize: 22
   },
 
+  appButtonText: {
+    fontSize: 18,
+    color: "#fff",
+    alignSelf: "center",
+  },
+
+  modal: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 270,
+    borderRadius: 10,
+  },
+
+  scroll: {
+    width: screen.width,
+    paddingLeft: 10,
+  },
+
+  title: {
+    color: "black",
+    fontSize: 25,
+    marginTop: 10,
+    marginRight: 10,
+    marginBottom: 10,
+  },
+
+  text: {
+    color: "black",
+    fontSize: 18,
+  },
+
+  image: {
+    height: 135,
+    flex: 1,
+  },
+
+  right: {
+    flex:2,
+    flexDirection: 'column',
+    marginLeft: 10,
+  },
+
   appButtonContainer: {
     elevation: 8,
     backgroundColor: "#147EFB",
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
-    position: 'absolute',
-    bottom: 30,
     left: 0, 
     right: 0,
-    marginLeft:30,
-    marginRight:30,
+    marginTop: 10,
+    marginLeft:10,
+    marginRight:10,
   },
+
   appButtonText: {
     fontSize: 18,
     color: "#fff",
