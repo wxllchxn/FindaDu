@@ -26,6 +26,8 @@ class HomeScreen extends React.Component {
       isOpen: false,
       isDisabled: false,
       swipeToClose: true,
+      showEntryBox: false,
+      goBack: false,
       sliderValue: 0.3,
       origLat: 0,
       origLon: 0,
@@ -42,6 +44,9 @@ class HomeScreen extends React.Component {
       cordLatitude: 42.279594,
       cordLongitude: 83.732124,
       bottomText: 'Find Closest Restrooms',
+      enterText: 'E',
+      enterText2: 'R',
+      firstText: '',
       index: 0,
       modalName: '',
       modalName: '',
@@ -124,20 +129,25 @@ class HomeScreen extends React.Component {
   }
 
 
-  async changeCurrPosition(newLocation) {
+  changeCurrPosition(newLocation) {
       //1600 Amphitheatre Parkway, Mountain View, CA
+      //"1600 Amphitheatre Parkway, Mountain View, CA"
+    console.log("ssssa");
+    console.log(newLocation);
     let endpoint = `https://maps.googleapis.com/maps/api/geocode/json?address=${ newLocation }&key=AIzaSyDchT5k7ZvFKsL0-RgQYccKIOHya8XFyKY`;
     fetch(endpoint)
       .then((response) => response.json())
       .then((data) => {
         console.log(data)
         this.setState({
+            goBack: true,
             region: {
               latitude: data.results[0].geometry.location.lat,
               longitude: data.results[0].geometry.location.lng,
               latitudeDelta: 0.0122,
               longitudeDelta: 0.0121,
-            }
+            },
+            firstText: ''
           })
       }).catch((err) => {
         console.log(err);
@@ -145,8 +155,6 @@ class HomeScreen extends React.Component {
   }
 
   mergeLot(restLat,restLon){
-    this.changeCurrPosition("1600 Amphitheatre Parkway, Mountain View, CA");//TESTING
-      
     let dest = restLat +","+restLon;
       
     if (this.state.region.latitude != null && this.state.region.longitude!=null)
@@ -275,6 +283,40 @@ class HomeScreen extends React.Component {
       }
     }
   }
+  
+  enterLocButtonStyle = function(options) {
+    return {
+        elevation: 8,
+        width: 30,
+        backgroundColor: "orange",
+        borderRadius: 10,
+        paddingVertical: 1,
+        paddingHorizontal: 1,
+        position: 'absolute',
+        bottom: 300,
+        left: 0, 
+        right: 0,
+        marginLeft:30,
+        marginRight:30,
+    }
+  }
+  
+  enterLocButtonStyle2 = function(options) {
+    return {
+        elevation: 8,
+        width: 30,
+        backgroundColor: "orange",
+        borderRadius: 10,
+        paddingVertical: 1,
+        paddingHorizontal: 1,
+        position: 'absolute',
+        bottom: 300,
+        left: 280, 
+        right: 0,
+        marginLeft:30,
+        marginRight:30,
+    }
+  }
 
   render() {
     return (
@@ -322,7 +364,60 @@ class HomeScreen extends React.Component {
             </TouchableOpacity>
           </ScrollView>
         </Modal>
-
+        
+        {this.state.showEntryBox == true && <TextInput  
+             style={{height: 40, borderColor: 'gray',  borderWidth: 1}} 
+             onChangeText={(text)=> this.setState({firstText:text})}
+             value={this.state.firstText}
+            />
+        }
+             
+        {this.state.showEntryBox == true && <Button 
+              onPress={() => this.changeCurrPosition(this.state.firstText)}
+              title="Submit"
+            />
+        }
+        
+        
+        
+        
+        <TouchableOpacity
+          style={this.enterLocButtonStyle()}
+          onPress={() => {
+                if(this.state.showEntryBox == false){
+                   this.setState({
+                      showEntryBox: true
+                    });
+                } else {
+                    this.setState({
+                      showEntryBox: false
+                    });  
+                }
+                
+              }
+            }>
+          <Text style={styles.entButtonText}>{this.state.enterText}</Text>
+        </TouchableOpacity>
+        
+        {this.state.goBack == true && <TouchableOpacity
+          style={this.enterLocButtonStyle2()}
+          onPress={() => {
+                this.setState({
+                    goBack: false,
+                    region: {
+                      latitude: this.state.origLat,
+                      longitude: this.state.origLon,
+                      latitudeDelta: 0.0122,
+                      longitudeDelta: 0.0121,
+                    }
+                  });
+                
+              }
+            }>
+          <Text style={styles.entButtonText}>{this.state.enterText2}</Text>
+        </TouchableOpacity>
+        }
+        
         <TouchableOpacity
           style={this.bottomButtonStyle()}
           onPress={() => {
@@ -334,6 +429,7 @@ class HomeScreen extends React.Component {
           }}>
           <Text style={styles.appButtonText}>{this.state.bottomText}</Text>
         </TouchableOpacity>
+
       </View>
     );
   }
@@ -431,6 +527,12 @@ const styles = StyleSheet.create({
     marginLeft:10,
     marginRight:10,
     marginBottom:20,
+  },
+
+  entButtonText: {
+    fontSize: 15,
+    color: "#fff",
+    alignSelf: "center",
   },
 
   appButtonText: {
