@@ -11,9 +11,11 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
+import { Card } from 'react-native-elements'
 import MapView from 'react-native-maps';
 import Polyline from '@mapbox/polyline';
 import { Marker } from 'react-native-maps';
+import { Rating } from 'react-native-elements';
 import Modal from 'react-native-modalbox';
 const fetch = require('node-fetch');
 
@@ -52,7 +54,7 @@ class HomeScreen extends React.Component {
       modalName: '',
       modalAmenities: '',
       modalReviews: [],
-      modalRating: '',
+      modalRating: 0.0,
     };
   }
 
@@ -228,10 +230,9 @@ class HomeScreen extends React.Component {
     for(let i = 0; i < this.state.modalReviews.length; i++){
       review = this.state.modalReviews[i]
       reviews.push(
-        <View key={i} style={{flexDirection:"column"}}>
-          <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>{review.name}</Text>
-          <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>{review.timestamp}</Text>
-          <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>{review.rating}</Text>
+        <View key={i} style={styles.reviewItem}>
+          <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>{review.name}, {review.timestamp}</Text>
+          <Rating imageSize={20} readonly startingValue={review.rating} style={styles.rating}/>
           <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>{review.review}</Text>
         </View>
       )
@@ -247,7 +248,7 @@ class HomeScreen extends React.Component {
       modalImage: this.state.restrooms[index].image,
       modalAmenities: this.amenities(this.state.restrooms[index].amenities),
       modalReviews: this.state.restrooms[index].reviews,
-      modalRating: this.state.restrooms[index].avg_rating+'/5',
+      modalRating: parseFloat(this.state.restrooms[index].avg_rating),
     });
     this.refs.modal.open()
   }
@@ -347,13 +348,11 @@ class HomeScreen extends React.Component {
             <View style={{flexDirection:"row"}}>
               <Image style={styles.image} source={{uri: this.state.modalImage}} />
               <View style={styles.right}>
-                <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>Rating: {this.state.modalRating}</Text>
+                <Rating imageSize={30} readonly startingValue={this.state.modalRating} style={styles.rating}/>
                 <Text adjustsFontSizeToFit numberOfLines={1} style={styles.text}>Amenities: {this.state.modalAmenities}</Text>
               </View>
             </View>
-            <View style={{flexDirection:"column"}}>
-              {this.review()}
-            </View>
+
             <TouchableOpacity
               style={styles.appButtonContainer}
               onPress={() => {
@@ -362,6 +361,13 @@ class HomeScreen extends React.Component {
               }}>
               <Text style={styles.appButtonText}>Navigate to this restroom</Text>
             </TouchableOpacity>
+
+            <Card>
+              <Card.Title>Reviews</Card.Title>
+              <Card.Divider/>
+              {this.review()}
+            </Card>
+            
           </ScrollView>
         </Modal>
         
@@ -377,9 +383,6 @@ class HomeScreen extends React.Component {
               title="Submit"
             />
         }
-        
-        
-        
         
         <TouchableOpacity
           style={this.enterLocButtonStyle()}
@@ -510,7 +513,7 @@ const styles = StyleSheet.create({
   },
 
   right: {
-    flex:2,
+    flex:1,
     flexDirection: 'column',
     marginLeft: 10,
   },
@@ -539,9 +542,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#fff",
     alignSelf: "center",
+  },
+
+  reviewItem: {
+    marginBottom:10,
+  },
+
+  rating: {
+    alignSelf: "flex-start",
+    marginBottom: 5,
   }
 });
-
 
 // const RootStack = createStackNavigator({
 //   Home: HomeScreen,
