@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
+import DialogInput from 'react-native-dialog-input';
 import MapView from 'react-native-maps';
 import Polyline from '@mapbox/polyline';
 import { Marker } from 'react-native-maps';
@@ -44,8 +45,8 @@ class HomeScreen extends React.Component {
       cordLatitude: 42.279594,
       cordLongitude: 83.732124,
       bottomText: 'Find Closest Restrooms',
-      enterText: 'E',
-      enterText2: 'R',
+      enterText: 'Enter Location',
+      enterText2: 'Return to current Location',
       firstText: '',
       index: 0,
       modalName: '',
@@ -134,6 +135,7 @@ class HomeScreen extends React.Component {
       //"1600 Amphitheatre Parkway, Mountain View, CA"
     console.log("ssssa");
     console.log(newLocation);
+    console.log("aaaa");
     let endpoint = `https://maps.googleapis.com/maps/api/geocode/json?address=${ newLocation }&key=AIzaSyDchT5k7ZvFKsL0-RgQYccKIOHya8XFyKY`;
     fetch(endpoint)
       .then((response) => response.json())
@@ -141,6 +143,7 @@ class HomeScreen extends React.Component {
         console.log(data)
         this.setState({
             goBack: true,
+            showEntryBox: false,
             region: {
               latitude: data.results[0].geometry.location.lat,
               longitude: data.results[0].geometry.location.lng,
@@ -287,13 +290,13 @@ class HomeScreen extends React.Component {
   enterLocButtonStyle = function(options) {
     return {
         elevation: 8,
-        width: 30,
+        width: 100,
         backgroundColor: "orange",
         borderRadius: 10,
         paddingVertical: 1,
         paddingHorizontal: 1,
         position: 'absolute',
-        bottom: 300,
+        bottom: 90,
         left: 0, 
         right: 0,
         marginLeft:30,
@@ -304,14 +307,14 @@ class HomeScreen extends React.Component {
   enterLocButtonStyle2 = function(options) {
     return {
         elevation: 8,
-        width: 30,
+        width: 150,
         backgroundColor: "orange",
         borderRadius: 10,
         paddingVertical: 1,
         paddingHorizontal: 1,
         position: 'absolute',
-        bottom: 300,
-        left: 280, 
+        bottom: 90,
+        left: 160, 
         right: 0,
         marginLeft:30,
         marginRight:30,
@@ -365,18 +368,15 @@ class HomeScreen extends React.Component {
           </ScrollView>
         </Modal>
         
-        {this.state.showEntryBox == true && <TextInput  
-             style={{height: 40, borderColor: 'gray',  borderWidth: 1}} 
-             onChangeText={(text)=> this.setState({firstText:text})}
-             value={this.state.firstText}
-            />
-        }
-             
-        {this.state.showEntryBox == true && <Button 
-              onPress={() => this.changeCurrPosition(this.state.firstText)}
-              title="Submit"
-            />
-        }
+        
+              
+        <DialogInput isDialogVisible={this.state.showEntryBox}
+            title={""}
+            message={"Enter New Location"}
+            hintInput ={""}
+            submitInput={(inputText) => this.changeCurrPosition(inputText)} 
+            closeDialog={ () => this.setState({showEntryBox:false})}>
+        </DialogInput>
         
         
         
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
   },
 
   entButtonText: {
-    fontSize: 15,
+    fontSize: 12,
     color: "#fff",
     alignSelf: "center",
   },
