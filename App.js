@@ -12,6 +12,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import DialogInput from 'react-native-dialog-input';
+import Dialog from 'react-native-dialog';
 import { Card } from 'react-native-elements'
 import MapView from 'react-native-maps';
 import Polyline from '@mapbox/polyline';
@@ -30,6 +31,7 @@ class HomeScreen extends React.Component {
       isDisabled: false,
       swipeToClose: true,
       showEntryBox: false,
+      showReviewModal: false,
       goBack: false,
       sliderValue: 0.3,
       origLat: 0,
@@ -39,6 +41,11 @@ class HomeScreen extends React.Component {
         longitude: 0,
         latitudeDelta: 1,
         longitudeDelta: 1,
+      },
+      review: {
+        name: '',
+        rating: 0,
+        reviewBody: '',
       },
       restrooms: [],
       coords: [],
@@ -51,7 +58,6 @@ class HomeScreen extends React.Component {
       enterText2: 'Return to current Location',
       firstText: '',
       index: 0,
-      modalName: '',
       modalName: '',
       modalAmenities: '',
       modalReviews: [],
@@ -133,16 +139,11 @@ class HomeScreen extends React.Component {
 
 
   changeCurrPosition(newLocation) {
-      //1600 Amphitheatre Parkway, Mountain View, CA
-      //"1600 Amphitheatre Parkway, Mountain View, CA"
-    console.log("ssssa");
-    console.log(newLocation);
-    console.log("aaaa");
+    //1600 Amphitheatre Parkway, Mountain View, CA
     let endpoint = `https://maps.googleapis.com/maps/api/geocode/json?address=${ newLocation }&key=AIzaSyDchT5k7ZvFKsL0-RgQYccKIOHya8XFyKY`;
     fetch(endpoint)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data)
         this.setState({
             goBack: true,
             showEntryBox: false,
@@ -166,7 +167,11 @@ class HomeScreen extends React.Component {
      {
         let concatLot = this.state.region.latitude +","+this.state.region.longitude
         this.setState({
-          concat: concatLot
+          concat: concatLot,
+          modalName: '',
+          modalAmenities: '',
+          modalReviews: [],
+          modalRating: 0.0,
         }, () => {
           this.getDirections(concatLot, dest);
         });
@@ -211,6 +216,67 @@ class HomeScreen extends React.Component {
       }).catch((err) => {
         console.log(err);
       });
+  }
+
+  async addReview() {
+    let endpoint = 'https://6jii3wt2n6.execute-api.us-east-1.amazonaws.com/test/helloworld-lambda'
+
+    let id = String(this.state.restrooms[this.state.index].latitude)+String(this.state.restrooms[this.state.index].longitude)
+    let timestamp = new Date().toLocaleDateString();
+
+    let submission = {
+      method: 'post',
+      body: JSON.stringify({
+        id: id,
+        name: this.state.review.name,
+        timestamp: timestamp,
+        review: this.state.review.reviewBody,
+        rating: this.state.review.rating,
+      }),
+      headers: {'Content-Type': 'application/json'}
+    }
+
+    // console.log(submission)
+
+    fetch(endpoint, submission)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data)
+        this.findClosestRestrooms(this.state.region['longitude'], this.state.region['latitude'], 1.23)
+      }).catch((err) => {
+        console.log(err);
+      });
+  }
+
+  handleName(name) {
+    let review = this.state.review
+    review.name = name
+    this.setState({
+      review: review,
+    });
+  }
+
+  handleRating(rating) {
+    let review = this.state.review
+    let parsedRating = parseInt(rating)
+    
+    if(Number.isNaN(parsedRating) || parsedRating > 5 || parsedRating < 1) {
+      parsedRating = 0
+    }
+
+    review.rating = parsedRating
+
+    this.setState({
+      review: review,
+    });
+  }
+
+  handleReview(reviewBody) {
+    let review = this.state.review
+    review.reviewBody = reviewBody
+    this.setState({
+      review: review,
+    });
   }
   
   amenities(amenity_dict) {
@@ -370,12 +436,20 @@ class HomeScreen extends React.Component {
               <Card.Divider/>
               {this.review()}
             </Card>
+
+            <TouchableOpacity
+              style={styles.appButtonContainer}
+              onPress={() => {
+                this.setState({
+                  showReviewModal: !this.state.showReviewModal,
+                });
+              }}>
+              <Text style={styles.appButtonText}>Add a review</Text>
+            </TouchableOpacity>
             
           </ScrollView>
         </Modal>
         
-        
-              
         <DialogInput isDialogVisible={this.state.showEntryBox}
             title={""}
             message={"Enter New Location"}
@@ -383,20 +457,32 @@ class HomeScreen extends React.Component {
             submitInput={(inputText) => this.changeCurrPosition(inputText)} 
             closeDialog={ () => this.setState({showEntryBox:false})}>
         </DialogInput>
-        
+
+        <Dialog.Container visible={this.state.showReviewModal}>
+          <Dialog.Title>Leave A Review</Dialog.Title>
+          <Dialog.Input label="Name" onChangeText={(name) => this.handleName(name)}></Dialog.Input>
+          <Dialog.Input label="Rating" onChangeText={(rating) => this.handleRating(rating)}></Dialog.Input>
+          <Dialog.Input label="Review" onChangeText={(reviewBody) => this.handleReview(reviewBody)}></Dialog.Input>
+          <Dialog.Button label="Submit" onPress={() => {
+              this.addReview()
+              this.setState({
+                showReviewModal: !this.state.showReviewModal,
+              });
+              this.refs.modal.close()
+            }}/>
+          <Dialog.Button label="Cancel" onPress={() => {
+              this.setState({
+                showReviewModal: !this.state.showReviewModal,
+              });
+            }}/>
+        </Dialog.Container>
+
         <TouchableOpacity
           style={this.enterLocButtonStyle()}
           onPress={() => {
-                if(this.state.showEntryBox == false){
-                   this.setState({
-                      showEntryBox: true
-                    });
-                } else {
-                    this.setState({
-                      showEntryBox: false
-                    });  
-                }
-                
+                this.setState({
+                  showEntryBox: !this.state.showEntryBox,
+                });
               }
             }>
           <Text style={styles.entButtonText}>{this.state.enterText}</Text>
@@ -412,7 +498,11 @@ class HomeScreen extends React.Component {
                       longitude: this.state.origLon,
                       latitudeDelta: 0.0122,
                       longitudeDelta: 0.0121,
-                    }
+                    },
+                    modalName: '',
+                    modalAmenities: '',
+                    modalReviews: [],
+                    modalRating: 0.0,
                   });
                 
               }
