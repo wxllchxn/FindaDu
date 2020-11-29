@@ -499,6 +499,7 @@ class HomeScreen extends React.Component {
                       latitudeDelta: 0.0122,
                       longitudeDelta: 0.0121,
                     },
+                    x: 'false',
                     modalName: '',
                     modalAmenities: '',
                     modalReviews: [],
